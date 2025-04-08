@@ -45,15 +45,21 @@ int log_fd = 0;
 #define REASON_DAEMON 0
 #define REASON_ALARM  1
 #define REASON_USER   2
+#define REASON_FINISH 3
 
 const char* stat_reason_text[] = {
-    "daemon", "alarm ", "user  "
+    "daemon", "alarm", "user", "finish"
 };
 
 unsigned int opens = 0;
 size_t bytes = 0;
 unsigned int alarms = 0;
 
+void print_stat(char reason) {
+    printf("[%6s] opens: %4d, bytes: %10ld, alarms: %4d\n",
+        stat_reason_text[reason], opens, bytes, alarms);
+    fflush(stdout);
+}
 
 // exit codes
 #define SUCCESS    0
@@ -68,6 +74,8 @@ unsigned int alarms = 0;
 #define ERR_HNDLR  9
 
 void finish(int code) {
+    print_stat(REASON_FINISH);
+
     if (status & WAS_FIFO_OPENED)
         remove(fifo_name);
 
@@ -127,12 +135,6 @@ void handler_reg_error() {
 }
 
 // actions
-void print_stat(char reason) {
-    printf("[%s] opens: %4d, bytes: %10ld, alarms: %4d\n",
-        stat_reason_text[reason], opens, bytes, alarms);
-    fflush(stdout);
-}
-
 void setup_alarm() {
     alarm(time);
 }
@@ -341,8 +343,9 @@ int main(int argc, char** argv) {
     link_handler();
     setup_alarm();
 
-    if (mkfifo(fifo_name, 0600)) {
-        if (errno != EEXIST) cannot_create_fifo();
+    if (mkfifo(fifo_name, 0666)) {
+        if (errno != EEXIST) 
+            printf("errno: %d\n", errno), fflush(stdout), cannot_create_fifo();
         
         struct stat stt;
 
@@ -362,7 +365,6 @@ int main(int argc, char** argv) {
         if (pipe < 0) {
             if (errno != EINTR) cannot_open_fifo();
 
-            if (intr) intr_handler();
             external_handler();
             continue;
         }
