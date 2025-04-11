@@ -82,6 +82,9 @@ $ bash daemon-test.sh
 
 Content of echo-server log is in the [`daemon-test-results.txt`](tests/daemon-test-results.txt).
 
+This test shows successful launch as daemon, putting two strings (one is LF-term'd) in the fifo, getting statss with signal,
+getting stats with timer, ingoring the quit signal and process terminating.
+
 ## Foreground test
 Code of the test is in the [`foreground-test.sh`](tests/foreground-test.sh) file. It is supposed to be run from [`tests`](tests) directory.
 
@@ -119,6 +122,10 @@ $ bash foreground-test.sh
 ```
 
 Content of echo-server log is in the [`foreground-test-results.txt`](tests/foreground-test-results.txt).
+
+This test shows succesful foreground launch. Afterwards, process posts stats by alarm, posts input string, posts stats by user signal,
+and daemonizes by signal. Afterwards, it posts after-daemonizations stats, receives one more strings (that can be seen in the log),
+and terminates by signal.
 
 ## Interaction test
 It was tested, that app ignores `Ctrl+\`, and safely finishes on `Ctrl+C`.
@@ -164,6 +171,9 @@ $ bash test-intr-vs-term.sh
 ```
 
 Content of echo-server log is in the [`int-vs-term-test-results.txt`](tests/int-vs-term-test-results.txt).
+
+Two process receive signal (interrupt or terminate) while being paused, interrupted one reads fifo to the end, after continuation, 
+and finishes. Terminated one finishes immediately.
 
 # What was hard about the lab
 The tricky part was to test the foreground mode --- with terminal bound to our process, I was not able to directly send signals to it, so I decided to launch foreground process, called [`background-signaller.sh`](tests/background-signaller.sh), that sends signals for me from the background.
