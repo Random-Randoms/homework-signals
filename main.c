@@ -72,6 +72,7 @@ void print_stat(char reason) {
 #define ERR_CREATE 7
 #define ERR_DUP    8
 #define ERR_HNDLR  9
+#define ERR_STAT   10
 
 void finish(int code) {
     print_stat(REASON_FINISH);
@@ -134,6 +135,11 @@ void handler_reg_error() {
     finish(ERR_HNDLR);
 }
 
+void stat_error() {
+    error("failed to get file stat\n");
+    finish(ERR_STAT);
+}
+
 // actions
 void setup_alarm() {
     alarm(time);
@@ -190,7 +196,7 @@ void link_handler() {
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGINT, &sa, 0) < 0) handler_reg_error();
     if (sigaction(SIGTERM, &sa, 0) < 0) handler_reg_error();
-    if (sigaction(SIGQUIT, &sa, 0) < 0) handler_reg_error();
+    if (signal(SIGQUIT, SIG_IGN) < 0) handler_reg_error();
     if (sigaction(SIGHUP, &sa, 0) < 0) handler_reg_error();
     if (sigaction(SIGUSR1, &sa, 0) < 0) handler_reg_error();
     if (sigaction(SIGALRM, &sa, 0) < 0) handler_reg_error();
@@ -210,6 +216,7 @@ void intr_handler() {
 
 void hup_handler() {
     hup = 0;
+    if (status & IS_DAEMON) return;
     daemonize();
 }
 
@@ -254,7 +261,7 @@ void invalid_arguments(int reason) {
         case MULTIPLE_DAEMON: error("multiple daemon flags\n"); break;
         case TOO_LONG_NAME:   error("too long name\n"); break;
         case BAD_N_VALUE:     error("bad N value\n"); break;
-        case NO_NAME:         error("no --name provided\n"); break;
+        case NO_NAME:         error("no --src provided\n"); break;
         default:              error("argument error\n"); break;
     }
     
@@ -349,7 +356,7 @@ int main(int argc, char** argv) {
         
         struct stat stt;
 
-        stat(fifo_name, &stt);
+        if (stat(fifo_name, &stt)) stat_error();
 
         if ((stt.st_mode & S_IFIFO) == 0)
             cannot_create_fifo();
@@ -365,6 +372,7 @@ int main(int argc, char** argv) {
         if (pipe < 0) {
             if (errno != EINTR) cannot_open_fifo();
 
+            if (intr) intr_handler();
             external_handler();
             continue;
         }
@@ -384,10 +392,12 @@ int main(int argc, char** argv) {
             last = buf[num - 1];
 
             write(STDOUT_FILENO, buf, num);
+            external_handler();
         }
 
         if (last != '\n') write(STDOUT_FILENO, "\n", 1);
-
+        external_handler();
+    
         close(pipe);
 
         if (intr) intr_handler();

@@ -19,7 +19,7 @@ echo "source pipe | ${pipe}"
 echo "log file    | ${log}"
 echo "stat freq   | ${freq} seconds"
 echo "verbose     | NO"
-id=$(./../echo-server --daemon --src $pipe --log $log -N $freq)
+./../echo-server --daemon --src $pipe --log $log -N $freq
 
 echo
 echo "put line into the pipe"
@@ -31,7 +31,7 @@ cat foo_source > $pipe
 
 echo
 echo "send SIGUSR1 to the file "
-kill -s SIGUSR1 $id
+pkill -SIGUSR1 echo-server
 
 echo
 echo "sleep for 11 seconds to get statistics twice"
@@ -39,11 +39,11 @@ sleep 11s
 
 echo
 echo "try to quit the process"
-kill -s SIGQUIT $id
+pkill -SIGQUIT echo-server
 
 echo
 echo "term the process"
-kill -s SIGTERM $id
+pkill -SIGTERM echo-server
 
 echo
 echo "load artifacts into file $artfs"

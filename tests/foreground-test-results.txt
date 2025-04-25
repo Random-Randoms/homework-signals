@@ -1,5 +1,6 @@
 process was daemonized
 [daemon] opens:    1, bytes:         21, alarms:    1
 tralalero tralala
-[user  ] opens:    2, bytes:         39, alarms:    1
-[alarm ] opens:    2, bytes:         39, alarms:    2
+[  user] opens:    2, bytes:         39, alarms:    1
+[ alarm] opens:    2, bytes:         39, alarms:    2
+[finish] opens:    2, bytes:         39, alarms:    2

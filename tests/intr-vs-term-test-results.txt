@@ -1,9 +1,0 @@
-stop with terminate:
-process was daemonized
-[daemon] opens:    0, bytes:          0, alarms:    0
-[finish] opens:    0, bytes:          0, alarms:    0
-stop with interrupt:
-process was daemonized
-[daemon] opens:    0, bytes:          0, alarms:    0
-tralalero tralala
-[finish] opens:    1, bytes:         19, alarms:    0

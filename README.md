@@ -130,50 +130,5 @@ and terminates by signal.
 ## Interaction test
 It was tested, that app ignores `Ctrl+\`, and safely finishes on `Ctrl+C`.
 
-## Interrupt versus terminate test
-Code of the test is in the [`int-vs-term-test.sh`](tests/int-vs-term-test.sh) file. It is supposed to be run from [`tests`](tests) directory.
-
-Test output if following:
-``` Shell
-$ bash test-intr-vs-term.sh
-> clean working directory
-> make: Entering directory '/home/unix/os-homeworks/homework-signals'
-> rm -f main.o
-> rm -f echo-server
-> make: Leaving directory '/home/unix/os-homeworks/homework-signals'
-> 
-> build echo-server with make
-> make: Entering directory '/home/unix/os-homeworks/homework-signals'
-> gcc -c main.c -o main.o
-> gcc main.o -o echo-server
-> make: Leaving directory '/home/unix/os-homeworks/homework-signals'
-> 
-> launch echo-server
-> is daemon   | YES
-> source pipe | foo
-> log file    | foo.log
-> stat freq   | 5 seconds
-> verbose     | NO
-> 4996
-> 
-> stop echo-server, put giant file in the pipe, term and continue echo-server
-> 
-> load artifacts into file intr-vs-term-test-results.txt
-> 
-> clean log
-> 
-> launch echo-server
-> 5004
-> 
-> stop echo-server, put giant file in the pipe, interrupt and continue the process
-> 
-> load artifacts into file intr-vs-term-test-results.txt
-```
-
-Content of echo-server log is in the [`int-vs-term-test-results.txt`](tests/int-vs-term-test-results.txt).
-
-Two process receive signal (interrupt or terminate) while being paused, interrupted one reads fifo to the end, after continuation, 
-and finishes. Terminated one finishes immediately.
-
 # What was hard about the lab
 The tricky part was to test the foreground mode --- with terminal bound to our process, I was not able to directly send signals to it, so I decided to launch foreground process, called [`background-signaller.sh`](tests/background-signaller.sh), that sends signals for me from the background.

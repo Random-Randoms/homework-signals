@@ -2,6 +2,4 @@ process was daemonized
 [daemon] opens:    0, bytes:          0, alarms:    0
 bombardiro crocodilo
 tralalero tralala
-[user  ] opens:    2, bytes:         40, alarms:    0
-[alarm ] opens:    2, bytes:         40, alarms:    1
-[alarm ] opens:    2, bytes:         40, alarms:    2
+[finish] opens:    2, bytes:         40, alarms:    0
